@@ -6,8 +6,15 @@ local m = p.modules.export_compile_commands
 local workspace = p.workspace
 local project = p.project
 
+function m.getToolsetName(cfg)
+  if string.sub(cfg.toolset,1,string.len('msc'))=='msc' then
+    return 'msc'
+  end
+  return 'gcc'
+end
+
 function m.getToolset(cfg)
-  return p.tools[cfg.toolset or 'gcc']
+  return p.tools[m.getToolsetName(cfg)]
 end
 
 function m.getIncludeDirs(cfg)
@@ -50,10 +57,15 @@ function m.getFileFlags(prj, cfg, node)
 end
 
 function m.generateCompileCommand(prj, cfg, node)
+  extra = ''
+  if m.getToolsetName(cfg) == 'msc' then
+    extra = extra .. '--driver-mode=cl '
+  end
+
   return {
     directory = prj.location,
     file = node.abspath,
-    command = 'cc '.. table.concat(m.getFileFlags(prj, cfg, node), ' ')
+    command = 'cc '.. extra .. table.concat(m.getFileFlags(prj, cfg, node), ' ')
   }
 end
 
