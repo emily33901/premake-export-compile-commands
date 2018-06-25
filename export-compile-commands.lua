@@ -14,7 +14,7 @@ function m.getToolsetName(cfg)
 end
 
 function m.getToolset(cfg)
-  return p.tools[m.getToolsetName(cfg)]
+  return p.tools['gcc']
 end
 
 function m.getIncludeDirs(cfg)
@@ -31,6 +31,7 @@ end
 function m.getCommonFlags(cfg)
   local toolset = m.getToolset(cfg)
   local flags = toolset.getcppflags(cfg)
+  flags = table.join(flags, toolset.getcxxflags(cfg))
   flags = table.join(flags, toolset.getdefines(cfg.defines))
   flags = table.join(flags, toolset.getundefines(cfg.undefines))
   -- can't use toolset.getincludedirs because some tools that consume
@@ -58,8 +59,9 @@ end
 
 function m.generateCompileCommand(prj, cfg, node)
   extra = ''
+
   if m.getToolsetName(cfg) == 'msc' then
-    extra = extra .. '--driver-mode=cl '
+    extra = extra .. "-fms-compatibility -fdelayed-template-parsing "
   end
 
   return {
@@ -117,11 +119,11 @@ local function execute()
         for i = 1, #cmds do
           local item = cmds[i]
           local command = string.format([[
-          {
-            "directory": "%s",
-            "file": "%s",
-            "command": "%s"
-          }]],
+{
+  "directory": "%s",
+  "file": "%s",
+  "command": "%s"
+}]],
           item.directory,
           item.file,
           item.command:gsub('\\', '\\\\'):gsub('"', '\\"'))
