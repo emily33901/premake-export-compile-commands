@@ -1,3 +1,6 @@
 [submodule "ghp"]
 	path = ghp
 	url = https://github.com/mversluys/premake-ghp.git
+[submodule "premake-emscripten"]
+	path = premake-emscripten
+	url = https://github.com/TurkeyMan/premake-emscripten
